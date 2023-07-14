@@ -1,0 +1,142 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class TicTacToeGame extends JFrame {
+    private JButton[][] buttons;
+    private JLabel currentPlayerLabel;
+    private JButton resetButton;
+    private boolean isPlayerX;
+    private boolean gameOver;
+
+    public TicTacToeGame() {
+        super("Tic Tac Toe");
+
+        buttons = new JButton[3][3];
+        currentPlayerLabel = new JLabel("Current Player: X");
+        resetButton = new JButton("Reset");
+        isPlayerX = true;
+        gameOver = false;
+
+        JPanel buttonPanel = new JPanel(new GridLayout(3, 3));
+        ButtonListener buttonListener = new ButtonListener();
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                buttons[row][col] = new JButton("");
+                buttons[row][col].setFont(new Font("Arial", Font.BOLD, 48));
+                buttons[row][col].addActionListener(buttonListener);
+                buttonPanel.add(buttons[row][col]);
+            }
+        }
+
+        resetButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                resetGame();
+            }
+        });
+
+        JPanel topPanel = new JPanel();
+        topPanel.add(currentPlayerLabel);
+        topPanel.add(resetButton);
+
+        setLayout(new BorderLayout());
+        add(topPanel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.CENTER);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(600, 600);
+        setVisible(true);
+    }
+
+    private class ButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            JButton button = (JButton) e.getSource();
+
+            if (!button.getText().equals("") || gameOver) {
+                return;
+            }
+
+            if (isPlayerX) {
+                button.setText("X");
+                currentPlayerLabel.setText("Current Player: O");
+            } else {
+                button.setText("O");
+                currentPlayerLabel.setText("Current Player: X");
+            }
+
+            if (checkWin()) {
+                String winner = isPlayerX ? "Player X" : "Player O";
+                JOptionPane.showMessageDialog(null, winner + " wins!");
+                gameOver = true;
+            } else if (checkDraw()) {
+                JOptionPane.showMessageDialog(null, "It's a draw!");
+                gameOver = true;
+            }
+
+            isPlayerX = !isPlayerX;
+        }
+
+        private boolean checkWin() {
+            String symbol = isPlayerX ? "X" : "O";
+            String[][] board = new String[3][3];
+
+            for (int row = 0; row < 3; row++) {
+                for (int col = 0; col < 3; col++) {
+                    board[row][col] = buttons[row][col].getText();
+                }
+            }
+
+            for (int row = 0; row < 3; row++) {
+                if (board[row][0].equals(symbol) && board[row][1].equals(symbol) && board[row][2].equals(symbol)) {
+                    return true;
+                }
+            }
+
+            for (int col = 0; col < 3; col++) {
+                if (board[0][col].equals(symbol) && board[1][col].equals(symbol) && board[2][col].equals(symbol)) {
+                    return true;
+                }
+            }
+
+            if (board[0][0].equals(symbol) && board[1][1].equals(symbol) && board[2][2].equals(symbol)) {
+                return true;
+            }
+
+            if (board[0][2].equals(symbol) && board[1][1].equals(symbol) && board[2][0].equals(symbol)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private boolean checkDraw() {
+            for (int row = 0; row < 3; row++) {
+                for (int col = 0; col < 3; col++) {
+                    if (buttons[row][col].getText().equals("")) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+    }
+
+    private void resetGame() {
+        isPlayerX = true;
+        gameOver = false;
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                buttons[row][col].setText("");
+            }
+        }
+
+        currentPlayerLabel.setText("Current Player: X");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new TicTacToeGame());
+    }
+}
